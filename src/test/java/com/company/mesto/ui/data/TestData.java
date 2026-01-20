@@ -1,4 +1,4 @@
-package com.company.projectMesto.ui.config;
+package com.company.mesto.ui.data;
 
 import java.util.UUID;
 
@@ -9,6 +9,10 @@ public class TestData {
     public static final String PASSWORD = "3329";
     public static final String INVALID_EMAIL = "123";
     public static final String INVALID_PASSWORD = "123";
+    public static final String PROFILE_NAME = "Жак-Ив Кусто";
+    public static final String PROFILE_ACTIVITY = "Исследователь";
+
+    public static String randomString() { return UUID.randomUUID().toString().replace("-", "").substring(0,10); }
 
     public static String randomEmail() {
         return "user_" + UUID.randomUUID().toString().replace("-", "") + "@test.com";

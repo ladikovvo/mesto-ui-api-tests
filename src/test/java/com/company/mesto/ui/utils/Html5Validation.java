@@ -1,4 +1,4 @@
-package com.company.projectMesto.ui.utils;
+package com.company.mesto.ui.utils;
 
 import com.codeborne.selenide.SelenideElement;
 

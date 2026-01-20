@@ -1,7 +1,7 @@
-package com.company.projectMesto.ui.pages;
+package com.company.mesto.ui.pages;
 import com.codeborne.selenide.SelenideElement;
+import com.company.mesto.ui.utils.AllureAttachments;
 import io.qameta.allure.Step;
-import org.junit.jupiter.api.Assertions;
 
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Condition.*;
@@ -25,11 +25,14 @@ public class LoginPage {
     public LoginPage openPage(){
         open("/signin");
         signInButton.shouldBe(visible);
+        AllureAttachments.screenshot("After open Login page");
         return this;
     }
 
+    @Step("Login page should be opened")
     public LoginPage shouldBeOpened(){
         signInButton.shouldBe(visible);
+        AllureAttachments.screenshot("After open Login page");
         return this;
     }
 
@@ -42,6 +45,7 @@ public class LoginPage {
     public LoginPage fillCredential(String email, String password){
         emailInput.shouldBe(visible).setValue(email);
         passwordInput.shouldBe(visible).setValue(password);
+        AllureAttachments.screenshot("After fill credentials");
         return this;
     }
 
@@ -57,6 +61,7 @@ public class LoginPage {
         errorPopup.shouldBe(visible);
         closeErrorButton.shouldBe(enabled).click();
         errorPopup.shouldNot(exist);
+        AllureAttachments.screenshot("After close error popup");
         return this;
     }
 
@@ -66,13 +71,14 @@ public class LoginPage {
         errorPopup.shouldBe(visible);
         errorText.shouldHave(text(line1))
                 .shouldHave(text(line2));
+        AllureAttachments.screenshot("After find expected error popup");
         return this;
     }
 
     @Step("Open registration page")
-    public RegistretionPage clickRegistration(){
+    public RegistrationPage clickRegistration(){
         registButton.shouldBe(interactable).click();
-        return new RegistretionPage().shouldBeOpened();
+        return new RegistrationPage();
     }
 
 

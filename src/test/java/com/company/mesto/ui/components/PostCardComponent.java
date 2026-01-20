@@ -1,15 +1,16 @@
-package com.company.projectMesto.ui.components;
+package com.company.mesto.ui.components;
 
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.conditions.CssClass;
-import com.company.projectMesto.ui.pages.HomePage;
+import com.company.mesto.ui.utils.AllureAttachments;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.*;
 
 public class PostCardComponent {
-    private SelenideElement post;
+    private final SelenideElement post;
+    private final SelenideElement title;
+    private final SelenideElement likesCount;
+    private final SelenideElement likeButton;
 
     public PostCardComponent(SelenideElement post) {
         this.post = post;
@@ -20,13 +21,11 @@ public class PostCardComponent {
 
 
 
-    private final SelenideElement title;
-    private final SelenideElement likesCount;
-    private final SelenideElement likeButton;
+
 
 
     private final String likeButtonTrue = "card__like-button_is-active";
-    private final String likeButtonFalse = "false";
+
 
 
     public String title(){
@@ -51,7 +50,8 @@ public class PostCardComponent {
 
     @Step("Wait likes counter changed from {old}")
     public PostCardComponent waitLikesChangedFrom(int old) {
-        likesCount.shouldNotHave(exactText(String.valueOf(old)));
+        likesCount.shouldBe(visible).shouldNotHave(exactText(String.valueOf(old)));
+        AllureAttachments.screenshot("After likes counter changed");
         return this;
     }
 
@@ -60,6 +60,7 @@ public class PostCardComponent {
         if(likeButton.shouldBe(visible).has(cssClass(likeButtonTrue))){
             unlikePost();
         }
+        AllureAttachments.screenshot("After ensure post is not liked");
         return this;
     }
 
@@ -68,6 +69,7 @@ public class PostCardComponent {
         if(!likeButton.shouldBe(visible).has(cssClass(likeButtonTrue))){
             likePost();
         }
+        AllureAttachments.screenshot("After ensure post is liked");
         return this;
     }
 
@@ -90,10 +92,11 @@ public class PostCardComponent {
 
 
         likeButton.shouldBe(interactable)
-                .shouldHave(cssClass("card__like-button_is-active"))
+                .shouldHave(cssClass(likeButtonTrue))
                 .click();
 
         likeButton.shouldNotHave(cssClass(likeButtonTrue));
+        AllureAttachments.screenshot("After ensure post is unliked");
         return this;
     }
 

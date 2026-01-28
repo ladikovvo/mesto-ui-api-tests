@@ -91,17 +91,12 @@ mvn clean test
 
 ### Run only API tests (by tag)
 ```powershell
-mvn clean test "-Dtag=api"
+mvn clean test "-Dgroups=api"
 ```
 
 ### Run only UI tests (by tag)
 ```powershell
-mvn clean test "-Dtag=ui"
-```
-
-### Exclude a tag (example: skip likes)
-```powershell
-mvn clean test "-Dtag=ui" "-DtagExclude=likes"
+mvn clean test "-Dgroups=ui"
 ```
 
 > Tags are defined using `@Tag("ui")` / `@Tag("api")` in test classes.
@@ -112,7 +107,7 @@ mvn clean test "-Dtag=ui" "-DtagExclude=likes"
 
 Example:
 ```powershell
-mvn clean test "-Dtag=ui" "-Dselenide.remote=http://localhost:4444/wd/hub" "-Dselenide.headless=true"
+mvn clean test "-Dgroups=ui" "-Dselenide.remote=http://localhost:4444/wd/hub" "-Dselenide.headless=true"
 ```
 
 ---

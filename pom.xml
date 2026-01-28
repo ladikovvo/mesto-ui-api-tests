@@ -12,8 +12,8 @@
 
     <junit.version>5.10.2</junit.version>
     <selenide.version>7.6.0</selenide.version>
-    <tag></tag>
-    <tagExclude></tagExclude>
+    <groups></groups> <!-- или оставьте пустым, чтобы запускать всё -->
+    <excludedGroups></excludedGroups>
     <aspectj.version>1.9.24</aspectj.version>
   </properties>
 
@@ -22,6 +22,13 @@
       <groupId>com.codeborne</groupId>
       <artifactId>selenide</artifactId>
       <version>${selenide.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>2.0.13</version>
       <scope>test</scope>
     </dependency>
 
@@ -96,10 +103,12 @@
         <configuration>
           <argLine>
             -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
+            --add-opens java.base/java.lang=ALL-UNNAMED
+            --add-opens java.base/java.util=ALL-UNNAMED
+            --add-modules java.base
           </argLine>
 
-          <groups>${tag}</groups>
-          <excludedGroups>${tagExclude}</excludedGroups>
+
         </configuration>
       </plugin>
 

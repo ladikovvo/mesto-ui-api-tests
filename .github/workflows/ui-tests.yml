@@ -19,7 +19,7 @@ jobs:
           cache: maven
 
       - name: Run API tests
-        run: mvn -q clean test -DincludeTags=api
+        run: mvn -q clean test -Dgroups=api
 
       - name: Generate Allure report
         if: always()
@@ -55,7 +55,7 @@ jobs:
           cache: maven
 
       - name: Run tests (remote + headless)
-        run: mvn -q test -Dselenide.remote=http://localhost:4444/wd/hub -Dselenide.headless=true
+        run: mvn -q test -Dgroups=ui -Dselenide.remote=http://localhost:4444/wd/hub -Dselenide.headless=true
 
       - name: Generate Allure report
         if: always()

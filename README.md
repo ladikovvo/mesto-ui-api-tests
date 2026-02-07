@@ -1,6 +1,7 @@
-# Mesto Tests (UI + API) — Selenide + RestAssured + JUnit 5 + Allure
+# Mesto Tests (UI + API + DB) — Selenide + RestAssured + JDBC + JUnit 5 + Allure
 
-A pet project with automated tests for the **Mesto** service.
+
+Full-stack test automation pet project covering:
 
 - **UI**: Selenide
 - **API**: Rest Assured
@@ -8,41 +9,49 @@ A pet project with automated tests for the **Mesto** service.
 - **Reporting**: Allure
 - **CI**: GitHub Actions (Remote Selenium)
 
+
 ---
 
 ## Tech Stack
 
-- Java 24
+- Java 17+
 - Maven
 - JUnit 5
 - Selenide
 - Rest Assured
 - Allure (JUnit5 + Selenide + RestAssured)
-- GitHub Actions (Remote Selenium)
+- GitHub Actions 
+- Docker (Selenium / PostgreSQL in CI)
 
 ---
 
 ## Project Structure
 
-`src/test/java/com/company/mesto/`
+`src/test/java/com/company/`
 
-- `api/`
+- `mesto/`
+  - `api/`
     - `clients/` — API clients (`AuthClient`, `CardsClient`, `UsersClient`)
     - `config/` — API config (`ApiConfig`)
-    - `data/` — API test data (optional, `ApiTestData`)
+    - `data/` — API test data (`ApiTestData`)
     - `models/` — POJOs (`Card`, `UserMe`, `UpdateProfileRequest`, `CreateCardRequest`, `ApiResponse`)
     - `specs/` — RestAssured specs (`ApiSpecs`)
     - `tests/` — API tests (`ApiTestBase`, `ApiTests`, `ApiNegativeTests`)
-    - `utils/` — API utilities (optional)
-- `ui/`
+    - `utils/` — API utilities
+  - `ui/`
     - `pages/` — Page Objects (`LoginPage`, `HomePage`, `RegistrationPage`)
     - `components/` — UI components (`PostCardComponent`)
     - `config/` — UI configuration (`UiConfig`)
     - `data/` — UI test data (`UiTestData`)
     - `tests/` — UI tests (`LoginTests`, `AuthorizedTests`, `RegistrationTests`)
     - `utils/` — utilities (`AllureAttachments`, `Html5Validation`)
-- `config/` — shared config (`TestConfig`)
-- `testdata/` — shared test data (`CommonTestData`)
+  - `config/` — shared config (`TestConfig`)
+  - `testdata/` — shared test data (`CommonTestData`)
+
+- `db/`
+  - `DbClient` — JDBC helper
+  - `DbConfig` — DB configuration (System properties / ENV)
+  - `tests/` — DB tests (`DbTests`)
 
 ---
 
@@ -65,7 +74,7 @@ mvn clean test -DbaseUrl=https://qa-mesto.praktikum-services.ru
 ### Credentials
 
 Priority:
-1. System properties `TEST_EMAIL`, `TEST_PASSWORD`
+1. System properties `-DTEST_EMAIL`, `-DTEST_PASSWORD`
 2. ENV `TEST_EMAIL`, `TEST_PASSWORD`
 
 Examples:
@@ -99,7 +108,12 @@ mvn clean test "-Dgroups=api"
 mvn clean test "-Dgroups=ui"
 ```
 
-> Tags are defined using `@Tag("ui")` / `@Tag("api")` in test classes.
+### Run only DB tests (by tag)
+```powershell
+mvn clean test "-Dgroups=db"
+```
+
+> Tags are defined using `@Tag("ui")` / `@Tag("api")` / `@Tag("db")` in test classes.
 
 ---
 
@@ -112,20 +126,59 @@ mvn clean test "-Dgroups=ui" "-Dselenide.remote=http://localhost:4444/wd/hub" "-
 
 ---
 
+## DB Tests (JDBC + PostgreSQL)
+
+**Self-contained database tests demonstrating JDBC usage in test automation:**
+
+- Connection via DriverManager
+- `INSERT` / `SELECT` / `DELETE`
+- `EXISTS` / `COUNT` / `ORDER BY` / `LIMIT`
+- Test data cleanup via `finally`
+- Configurable connection via System properties / ENV
+
+**Start Postgres locally:**
+```powershell
+docker compose up -d
+```
+
+**DB configuration priority:**
+
+System properties:
+```powershell
+-Ddb.url=
+-Ddb.user=
+-Ddb.pass=
+```
+
+Environment variables:
+```powershell
+DB_URL
+DB_USER
+DB_PASS
+```
+
+Defaults:
+```powershell
+jdbc:postgresql://localhost:5432/mesto  
+user: mesto  
+pass: mesto
+```
+
+---
+
 ## Allure Report
 
 ### Generate the report
 ```bash
 mvn allure:report
 ```
-
 ### Output folders
-- Raw results: `target/allure-results/`
-- HTML report: `target/site/allure-maven-plugin/`
+- Raw results: target/allure-results/ 
+- HTML report: target/site/allure-maven-plugin/ 
 
-### Open the report locally
-Open this file in your browser:
-- `target/site/allure-maven-plugin/index.html`
+### Open the report locally 
+Open this file in your browser: 
+- target/site/allure-maven-plugin/index.html 
 
 (Optionally, you can use Allure CLI if installed separately.)
 
@@ -133,22 +186,29 @@ Open this file in your browser:
 
 ## GitHub Actions (CI)
 
-Workflow file: `.github/workflows/ui-tests.yml`
+UI workflow:
+- Starts selenium/standalone-chrome container
+- Runs UI tests (remote + headless)
+- Generates Allure report
+- Uploads artifacts:
+  - target/surefire-reports/
+  - target/allure-results/
+  - target/site/allure-maven-plugin/
 
-In CI:
-- a `selenium/standalone-chrome` container is started
-- tests are executed (remote + headless)
-- Allure report is generated
-- artifacts are uploaded:
-    - `target/surefire-reports/`
-    - `target/allure-results/`
-    - `target/site/allure-maven-plugin/`
+API workflow:
+- Runs REST Assured tests
+- Generates Allure report
+- Uploads artifacts
+
+DB workflow:
+- Located at `.github/workflows/db-tests.yml`
+- Runs manually (workflow_dispatch)
+- Starts PostgreSQL container
+- Creates test table automatically
+- Executes only @Tag("db") tests
+- Generates Allure report
+- Uploads artifacts:
+  - db-allure-report
+  - db-surefire-reports
 
 ---
-
-## TODO / Improvements
-
-- Move credentials to GitHub Secrets and read them from ENV
-- Pin Selenium image version + add healthcheck + increase `/dev/shm` size
-- Improve anti-flake waits in UI (likes / popups)
-- Split CI into separate workflows/jobs for `api` and `ui`

@@ -1,0 +1,73 @@
+name: db-tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  db:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: mesto
+          POSTGRES_USER: mesto
+          POSTGRES_PASSWORD: mesto
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U mesto -d mesto"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Install psql client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Create test table
+        run: |
+          psql "postgresql://mesto:mesto@localhost:5432/mesto" -c \
+          "CREATE TABLE IF NOT EXISTS test_users (
+            id SERIAL PRIMARY KEY,
+            email TEXT NOT NULL UNIQUE,
+            created_at TIMESTAMP NOT NULL DEFAULT now()
+          );"
+
+      - name: Run DB tests
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/mesto
+          DB_USER: mesto
+          DB_PASS: mesto
+        run: mvn -q clean test -Dgroups=db
+
+      - name: Generate Allure report
+        if: always()
+        run: mvn -q allure:report
+
+      - name: Upload DB Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-allure-report
+          path: target/site/allure-maven-plugin/
+
+      - name: Upload DB surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-surefire-reports
+          path: target/surefire-reports/

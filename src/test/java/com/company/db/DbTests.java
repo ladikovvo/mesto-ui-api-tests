@@ -1,6 +1,5 @@
-package com.company.db.tests;
+package com.company.db;
 
-import com.company.db.DbClient;
 import com.company.mesto.testdata.CommonTestData;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

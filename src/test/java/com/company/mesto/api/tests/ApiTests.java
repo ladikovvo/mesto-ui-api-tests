@@ -1,5 +1,6 @@
 package com.company.mesto.api.tests;
 
+import com.company.mesto.api.clients.CardsClient;
 import com.company.mesto.api.models.Card;
 import com.company.mesto.api.models.UserMe;
 import com.company.mesto.testdata.CommonTestData;
@@ -95,6 +96,33 @@ public class ApiTests extends ApiTestBase {
                     () -> assertThat("ID not null or empty", id, not(emptyOrNullString())),
                     () -> assertThat("Name not null or empty", name, not(emptyOrNullString())),
                     () -> assertThat("Link not null or empty", link, not(emptyOrNullString())));
+        }
+
+        @DisplayName("Add new card should save correct value")
+        @Test
+        void addNewCardShouldSaveCorrectValue_andDeleteIt(){
+            String name = CommonTestData.randomString();
+            String link = CommonTestData.POST_LINK;
+
+            Card newCard = cardsClient.createCard_GetCard(name, link);
+            String id = newCard.getId();
+
+            try {
+                Card actualCard = cardsClient.getCardById(id);
+                assertEquals(name, actualCard.getName(), "Name does not correspond");
+                assertEquals(link, actualCard.getLink(), "Link does not correspond");
+            } finally{
+                cardsClient.deleteCard(id)
+                        .then()
+                        .spec(ok200);
+                cardsClient.shouldNotContainCardId(id);
+
+            }
+
+
+
+
+
         }
 
     }

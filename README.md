@@ -1,13 +1,15 @@
-# Mesto Tests (UI + API + DB) — Selenide + RestAssured + JDBC + JUnit 5 + Allure
+# Mesto Tests (UI + API + DB + Unit) — Selenide + RestAssured + JDBC + Mockito + JUnit 5 + Allure
 
 
 Full-stack test automation pet project covering:
 
 - **UI**: Selenide
 - **API**: Rest Assured
+- **DB**: JDBC (PostgreSQL)
+- **Unit**: Mockito-based service tests
 - **Test framework**: JUnit 5
 - **Reporting**: Allure
-- **CI**: GitHub Actions (Remote Selenium)
+- **CI**: GitHub Actions (Remote Selenium + Postgres)
 
 
 ---
@@ -19,8 +21,10 @@ Full-stack test automation pet project covering:
 - JUnit 5
 - Selenide
 - Rest Assured
+- JDBC (PostgreSQL)
+- Mockito
 - Allure (JUnit5 + Selenide + RestAssured)
-- GitHub Actions 
+- GitHub Actions
 - Docker (Selenium / PostgreSQL in CI)
 
 ---
@@ -45,6 +49,7 @@ Full-stack test automation pet project covering:
     - `data/` — UI test data (`UiTestData`)
     - `tests/` — UI tests (`LoginTests`, `AuthorizedTests`, `RegistrationTests`)
     - `utils/` — utilities (`AllureAttachments`, `Html5Validation`)
+  - `unit/` — Unit tests (Mockito) for isolated business logic / services
   - `config/` — shared config (`TestConfig`)
   - `testdata/` — shared test data (`CommonTestData`)
 
@@ -113,7 +118,12 @@ mvn clean test "-Dgroups=ui"
 mvn clean test "-Dgroups=db"
 ```
 
-> Tags are defined using `@Tag("ui")` / `@Tag("api")` / `@Tag("db")` in test classes.
+### Run only Unit tests (by tag)
+```powershell
+mvn clean test "-Dgroups=unit"
+```
+
+> Tags are defined using `@Tag("ui")` / `@Tag("api")` / `@Tag("db")` / `@Tag("unit")` in test classes.
 
 ---
 
@@ -166,6 +176,23 @@ pass: mesto
 
 ---
 
+## Unit Tests (Mockito)
+
+**Isolated unit tests for service layer using Mockito:**
+
+- `@Mock` dependencies
+- `@InjectMocks` for SUT
+- `when/thenReturn` stubbing
+- `verify` interaction checks
+- `ArgumentCaptor` for value validation
+- Negative scenarios (null / exceptions)
+
+These tests do not require UI, API, or DB and run very fast.
+
+---
+
+---
+
 ## Allure Report
 
 ### Generate the report
@@ -173,12 +200,12 @@ pass: mesto
 mvn allure:report
 ```
 ### Output folders
-- Raw results: target/allure-results/ 
-- HTML report: target/site/allure-maven-plugin/ 
+- Raw results: `target/allure-results/` 
+- HTML report: `target/site/allure-maven-plugin/`
 
 ### Open the report locally 
 Open this file in your browser: 
-- target/site/allure-maven-plugin/index.html 
+- `target/site/allure-maven-plugin/index.html `
 
 (Optionally, you can use Allure CLI if installed separately.)
 
@@ -186,29 +213,39 @@ Open this file in your browser:
 
 ## GitHub Actions (CI)
 
-UI workflow:
+**UI workflow:**
 - Starts selenium/standalone-chrome container
 - Runs UI tests (remote + headless)
 - Generates Allure report
 - Uploads artifacts:
-  - target/surefire-reports/
-  - target/allure-results/
-  - target/site/allure-maven-plugin/
+  - `target/surefire-reports/`
+  - `target/allure-results/`
+  - `target/site/allure-maven-plugin/`
 
-API workflow:
+**API workflow:**
 - Runs REST Assured tests
 - Generates Allure report
 - Uploads artifacts
 
-DB workflow:
+**DB workflow:**
 - Located at `.github/workflows/db-tests.yml`
-- Runs manually (workflow_dispatch)
+- Runs manually (`workflow_dispatch`)
 - Starts PostgreSQL container
 - Creates test table automatically
-- Executes only @Tag("db") tests
+- Executes only `@Tag("db")` tests
 - Generates Allure report
 - Uploads artifacts:
-  - db-allure-report
-  - db-surefire-reports
+  - `db-allure-report`
+  - `db-surefire-reports`
+
+**Unit workflow:**
+-Located at `.github/workflows/unit-tests.yml`
+-Runs manually (`workflow_dispatch`)
+-Executes only `@Tag("unit")` tests
+-No external services required
+-Generates Allure report
+-Uploads artifacts:
+ - `unit-allure-report`
+ - `unit-surefire-reports`
 
 ---

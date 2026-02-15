@@ -1,5 +1,6 @@
 package com.company.db;
 
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,4 +106,5 @@ public class DbClient {
             throw new RuntimeException("DB count failed", e);
         }
     }
+
 }

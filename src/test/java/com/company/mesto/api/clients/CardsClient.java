@@ -106,6 +106,13 @@ public class CardsClient {
                 .toList();
     }
 
+    @Step("Get card by id")
+    public Card getCardById(String id){
+        List<Card> cards = getAllCards();
+        return cards.stream()
+                .filter(card -> card.getId().equals(id)).findFirst().orElseThrow(() -> new AssertionError("Card not found"));
+    }
+
     @Step("Should not contain card id={id}")
     public void shouldNotContainCardId(String id){
         List<String> ids = getAllCardIds();

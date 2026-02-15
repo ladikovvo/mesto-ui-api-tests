@@ -1,0 +1,40 @@
+name: unit-tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Run unit tests
+        run: mvn -q clean test -Dgroups=unit
+
+      - name: Generate Allure report
+        if: always()
+        run: mvn -q allure:report
+
+      - name: Upload Unit Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-allure-report
+          path: target/site/allure-maven-plugin/
+
+      - name: Upload Unit surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-surefire-reports
+          path: target/surefire-reports/

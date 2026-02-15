@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 import static io.restassured.RestAssured.*;
 
-public class AuthClient {
+public class  AuthClient {
 
     public String loginAndGetToken() {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("payloads/auth/login.json")) {

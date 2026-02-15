@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 @Tag("ui")
 @DisplayName("Registration page tests")
@@ -20,6 +22,7 @@ public class RegistrationTests extends UiConfig {
         registrationPage = new LoginPage()
                 .openPage()
                 .clickRegistration()
+                .shouldBeOpened()
                 ;
     }
 
@@ -42,6 +45,15 @@ public class RegistrationTests extends UiConfig {
         registrationPage
                 .registerNewUser(CommonTestData.randomEmail(), CommonTestData.randomPassword())
                 .closeRegistrationStatusMessage()
+                .shouldBeOpened();
+    }
+
+    @ParameterizedTest
+    @EnumSource(RegistrationPage.SignInPlace.class)
+    @DisplayName("Sign in opens Login page from different places")
+    void openLoginPageByHeaderSignInButton(RegistrationPage.SignInPlace place){
+        registrationPage
+                .openLogin(place)
                 .shouldBeOpened();
     }
 

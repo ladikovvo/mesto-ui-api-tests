@@ -1,62 +1,54 @@
-# Mesto Tests (UI + API + DB + Unit) — Selenide + RestAssured + JDBC + Mockito + JUnit 5 + Allure
+# Mesto UI + API + DB Tests (Java)
 
+![API](https://github.com/ladikovvo/mesto-ui-api-tests/actions/workflows/api-test.yml/badge.svg)
+![UI](https://github.com/ladikovvo/mesto-ui-api-tests/actions/workflows/ui-tests.yml/badge.svg)
+![DB](https://github.com/ladikovvo/mesto-ui-api-tests/actions/workflows/db-tests.yml/badge.svg)
+![UNIT](https://github.com/ladikovvo/mesto-ui-api-tests/actions/workflows/unit-tests.yml/badge.svg)
 
-Full-stack test automation pet project covering:
+Full-stack test automation pet project: **UI (Selenide)** + **API (REST Assured)** + **DB (JDBC/Postgres)** + **Unit (Mockito)** with **Allure** reports and **GitHub Actions** CI.
 
-- **UI**: Selenide
-- **API**: Rest Assured
-- **DB**: JDBC (PostgreSQL)
-- **Unit**: Mockito-based service tests
-- **Test framework**: JUnit 5
-- **Reporting**: Allure
-- **CI**: GitHub Actions (Remote Selenium + Postgres)
-
+## TL;DR
+- **UI**: Selenide + Page Object Model + Components, stable waits (no `sleep`)
+- **API**: REST Assured clients + specs, positive + negative cases
+- **DB**: JDBC checks against Postgres (Docker)
+- **Unit**: Mockito-based service tests (fast, isolated)
+- **Reporting**: Allure (steps + attachments), CI artifacts
 
 ---
 
-## Tech Stack
+## Demo (what to check in 60 seconds)
+1. Run one suite locally (e.g. API): `mvn clean test -Dgroups=api`
+2. Open Allure report: `mvn allure:serve`
+3. In CI: open **Actions** → latest run → **Artifacts** → download Allure artifacts
 
+### Allure screenshots
+<a href="docs/allure-overview.png"><img src="docs/allure-overview.png" width="500"></a>
+
+<a href="docs/allure-test-case.png"><img src="docs/allure-test-case.png" width="500"></a>
+
+---
+
+## Quickstart (Local)
+
+### Prerequisites
 - Java 17+
-- Maven
-- JUnit 5
-- Selenide
-- Rest Assured
-- JDBC (PostgreSQL)
-- Mockito
-- Allure (JUnit5 + Selenide + RestAssured)
-- GitHub Actions
-- Docker (Selenium / PostgreSQL in CI)
+- Maven 3.9+
+- (for DB tests) Docker
 
----
+### Run suites
+```bash
+# API
+mvn clean test -Dgroups=api
 
-## Project Structure
+# UI
+mvn clean test -Dgroups=ui
 
-`src/test/java/com/company/`
+# DB
+mvn clean test -Dgroups=db
 
-- `mesto/`
-  - `api/`
-    - `clients/` — API clients (`AuthClient`, `CardsClient`, `UsersClient`)
-    - `config/` — API config (`ApiConfig`)
-    - `data/` — API test data (`ApiTestData`)
-    - `models/` — POJOs (`Card`, `UserMe`, `UpdateProfileRequest`, `CreateCardRequest`, `ApiResponse`)
-    - `specs/` — RestAssured specs (`ApiSpecs`)
-    - `tests/` — API tests (`ApiTestBase`, `ApiTests`, `ApiNegativeTests`)
-    - `utils/` — API utilities
-  - `ui/`
-    - `pages/` — Page Objects (`LoginPage`, `HomePage`, `RegistrationPage`)
-    - `components/` — UI components (`PostCardComponent`)
-    - `config/` — UI configuration (`UiConfig`)
-    - `data/` — UI test data (`UiTestData`)
-    - `tests/` — UI tests (`LoginTests`, `AuthorizedTests`, `RegistrationTests`)
-    - `utils/` — utilities (`AllureAttachments`, `Html5Validation`)
-  - `unit/` — Unit tests (Mockito) for isolated business logic / services
-  - `config/` — shared config (`TestConfig`)
-  - `testdata/` — shared test data (`CommonTestData`)
-
-- `db/`
-  - `DbClient` — JDBC helper
-  - `DbConfig` — DB configuration (System properties / ENV)
-  - `tests/` — DB tests (`DbTests`)
+# Unit (Mockito)
+mvn clean test -Dgroups=unit
+```
 
 ---
 
@@ -65,7 +57,6 @@ Full-stack test automation pet project covering:
 The project supports overriding settings via **System properties** (`-D...`) or **Environment variables** (ENV).
 
 ### Base URL
-
 Priority:
 1. System property `baseUrl`
 2. ENV `BASE_URL`
@@ -77,175 +68,97 @@ mvn clean test -DbaseUrl=https://qa-mesto.praktikum-services.ru
 ```
 
 ### Credentials
-
 Priority:
 1. System properties `-DTEST_EMAIL`, `-DTEST_PASSWORD`
 2. ENV `TEST_EMAIL`, `TEST_PASSWORD`
 
-Examples:
-
-**PowerShell**
-```powershell
-mvn clean test "-DTEST_EMAIL=mail@example.com" "-DTEST_PASSWORD=12345"
-```
-
-**bash**
+Example:
 ```bash
 mvn clean test -DTEST_EMAIL=mail@example.com -DTEST_PASSWORD=12345
 ```
 
----
+### DB (for db suite)
+System properties:
+- `-Ddb.url=...`
+- `-Ddb.user=...`
+- `-Ddb.pass=...`
 
-## Run Tests
+Environment variables:
+- `DB_URL`
+- `DB_USER`
+- `DB_PASS`
 
-### Run all tests
-```bash
-mvn clean test
-```
-
-### Run only API tests (by tag)
-```powershell
-mvn clean test "-Dgroups=api"
-```
-
-### Run only UI tests (by tag)
-```powershell
-mvn clean test "-Dgroups=ui"
-```
-
-### Run only DB tests (by tag)
-```powershell
-mvn clean test "-Dgroups=db"
-```
-
-### Run only Unit tests (by tag)
-```powershell
-mvn clean test "-Dgroups=unit"
-```
-
-> Tags are defined using `@Tag("ui")` / `@Tag("api")` / `@Tag("db")` / `@Tag("unit")` in test classes.
+Defaults:
+- `jdbc:postgresql://localhost:5432/mesto`
+- user: `mesto`
+- pass: `mesto`
 
 ---
 
 ## Run UI Tests with Remote Selenium (CI / Docker)
-
-Example:
-```powershell
-mvn clean test "-Dgroups=ui" "-Dselenide.remote=http://localhost:4444/wd/hub" "-Dselenide.headless=true"
+```bash
+mvn clean test -Dgroups=ui -Dselenide.remote=http://localhost:4444/wd/hub -Dselenide.headless=true
 ```
 
 ---
 
 ## DB Tests (JDBC + PostgreSQL)
 
-**Self-contained database tests demonstrating JDBC usage in test automation:**
-
-- Connection via DriverManager
-- `INSERT` / `SELECT` / `DELETE`
-- `EXISTS` / `COUNT` / `ORDER BY` / `LIMIT`
-- Test data cleanup via `finally`
-- Configurable connection via System properties / ENV
-
-**Start Postgres locally:**
-```powershell
+Start Postgres locally:
+```bash
 docker compose up -d
 ```
 
-**DB configuration priority:**
+---
 
-System properties:
-```powershell
--Ddb.url=
--Ddb.user=
--Ddb.pass=
-```
-
-Environment variables:
-```powershell
-DB_URL
-DB_USER
-DB_PASS
-```
-
-Defaults:
-```powershell
-jdbc:postgresql://localhost:5432/mesto  
-user: mesto  
-pass: mesto
-```
+## Run in CI (GitHub Actions)
+1. Open repository → **Actions**
+2. Choose workflow (`api-test`, `ui-tests`, `db-tests`, `unit-tests`) → **Run workflow**
+3. Download artifacts (Allure) from the workflow run
 
 ---
 
-## Unit Tests (Mockito)
-
-**Isolated unit tests for service layer using Mockito:**
-
-- `@Mock` dependencies
-- `@InjectMocks` for SUT
-- `when/thenReturn` stubbing
-- `verify` interaction checks
-- `ArgumentCaptor` for value validation
-- Negative scenarios (null / exceptions)
-
-These tests do not require UI, API, or DB and run very fast.
+## Test suites
+- `-Dgroups=ui` — UI tests (Selenide)
+- `-Dgroups=api` — API tests (REST Assured)
+- `-Dgroups=db` — DB tests (JDBC + Postgres)
+- `-Dgroups=unit` — Unit tests (Mockito)
 
 ---
 
----
+## Allure report
 
-## Allure Report
-
-### Generate the report
+### Generate report
 ```bash
 mvn allure:report
 ```
+
 ### Output folders
-- Raw results: `target/allure-results/` 
+- Raw results: `target/allure-results/`
 - HTML report: `target/site/allure-maven-plugin/`
 
-### Open the report locally 
-Open this file in your browser: 
-- `target/site/allure-maven-plugin/index.html `
+### Open locally
+Open in browser:
+- `target/site/allure-maven-plugin/index.html`
 
-(Optionally, you can use Allure CLI if installed separately.)
+Or use:
+```bash
+mvn allure:serve
+```
+
+---
+
+## Project structure (high level)
+```text
+src/test/java/com/company/mesto/
+  ui/   (pages, components, ui tests)
+  api/  (clients, models, specs, api tests)
+  db/   (jdbc client, queries, db tests)
+  unit/ (mockito unit tests)
+```
 
 ---
 
-## GitHub Actions (CI)
-
-**UI workflow:**
-- Starts selenium/standalone-chrome container
-- Runs UI tests (remote + headless)
-- Generates Allure report
-- Uploads artifacts:
-  - `target/surefire-reports/`
-  - `target/allure-results/`
-  - `target/site/allure-maven-plugin/`
-
-**API workflow:**
-- Runs REST Assured tests
-- Generates Allure report
-- Uploads artifacts
-
-**DB workflow:**
-- Located at `.github/workflows/db-tests.yml`
-- Runs manually (`workflow_dispatch`)
-- Starts PostgreSQL container
-- Creates test table automatically
-- Executes only `@Tag("db")` tests
-- Generates Allure report
-- Uploads artifacts:
-  - `db-allure-report`
-  - `db-surefire-reports`
-
-**Unit workflow:**
--Located at `.github/workflows/unit-tests.yml`
--Runs manually (`workflow_dispatch`)
--Executes only `@Tag("unit")` tests
--No external services required
--Generates Allure report
--Uploads artifacts:
- - `unit-allure-report`
- - `unit-surefire-reports`
-
----
+## Notes
+- Suite selection is done via `-Dgroups=...` (kept intentionally for simplicity)
+- Keep secrets out of the repo (use ENV / GitHub Secrets)

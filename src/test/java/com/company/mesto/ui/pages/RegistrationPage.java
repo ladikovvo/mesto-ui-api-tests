@@ -34,6 +34,22 @@ public class RegistrationPage {
 
 
 
+    public enum SignInPlace { HEADER, FORM }
+
+
+    @Step("Open login page via {place}")
+    public LoginPage openLogin(SignInPlace place) {
+        SelenideElement btn = (place == SignInPlace.HEADER) ? headerSignInButton : signInButton;
+        btn.shouldBe(interactable).click();
+        return new LoginPage();
+    }
+
+
+
+
+
+
+
 
 
 }
